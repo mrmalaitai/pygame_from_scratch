@@ -16,7 +16,6 @@ def collision_test(rect,tiles):
     for tile in tiles:
         if rect.colliderect(tile):
             hit_list.append(tile)
-    print(hit_list)    
     return hit_list
 
 def move(rect, movement, tiles):
@@ -62,10 +61,13 @@ def main():
     dirt_img = pygame.image.load("images/wall.png")
     grass_img = pygame.image.load("images/wood.png")
     spring_img = pygame.image.load("images/spring.png")
+    slip_img = pygame.image.load("images/slip.png")
     player_img = pygame.image.load("images/player.png").convert()
+    enemy_img = pygame.image.load("images/enemy.png").convert()
     
 
     player_rect = pygame.Rect(100,100,5,13)
+    #enemy_rect = pygame.Rect(90,100,5,13)
 
     # Map for game
     game_map = load_map()
@@ -73,7 +75,7 @@ def main():
     gameover = False
     
     while not gameover:
-        display.fill((146,244,255))
+        display.fill((250,193,6)) # background colour
         
         true_scroll[0] += (player_rect.x-true_scroll[0]-152)/20 # a number lower than 20 speeds up the parallax
         true_scroll[1] += (player_rect.y-true_scroll[1]-106)/20 # a number higher than 20 slows down the parallax
@@ -92,7 +94,9 @@ def main():
                 if tile == '2':
                     display.blit(grass_img,(x*16-scroll[0],y*16-scroll[1]))
                 if tile == '3':
-                    display.blit(spring_img,(x*16-scroll[0],y*16-scroll[1]))    
+                    display.blit(spring_img,(x*16-scroll[0],y*16-scroll[1]))
+                if tile == '4':
+                    display.blit(slip_img,(x*16-scroll[0],y*16-scroll[1]))    
                 if tile != '0':
                     tile_rects.append(pygame.Rect(x*16,y*16,16,16))
                 x += 1
@@ -117,6 +121,7 @@ def main():
             air_timer += 1
 
         display.blit(player_img,(player_rect.x-scroll[0],player_rect.y-scroll[1]))
+        #display.blit(enemy_img,(enemy_rect.x-scroll[0],enemy_rect.y-scroll[1]))
 
         for event in pygame.event.get(): # wait for event
             if event.type == pygame.QUIT: # If the 'x' on the top right of the window is clicked, close the window
@@ -141,13 +146,33 @@ def main():
         if(player_rect.y>200):
             player_rect.x = 100
             player_rect.y = 100
-        
+
+        # Hit the first spring located between (235, 99) and (256, 99)
+        if(player_rect.y == 99 and player_rect.x < 256 and player_rect.x >235):
+            if air_timer < 6:
+                vertical_momentum = -5
+
+        # Temporary boost
+        if(player_rect.y == 115 and player_rect.x < 350 and player_rect.x > 316):
+            if(moving_left):
+                player_rect.x -= 5
+            if(moving_right):
+                player_rect.x += 5
+
+        """
+        if(enemy_rect.x < player_rect.x):
+            enemy_rect.x += 1
+        if(enemy_rect.x > player_rect.x):
+            enemy_rect.x -= 1
+        if(enemy_rect.y < player_rect.y):
+            enemy_rect.y += 1
+        if(enemy_rect.y > player_rect.y):
+            enemy_rect.y -= 1
+        """
         screen.blit(pygame.transform.scale(display,WINDOW_SIZE),(0,0))
         pygame.display.update()
-        clock.tick(20)
+        clock.tick(60)
 
-
- 
 # Global constants
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
