@@ -1,0 +1,9 @@
+Notes:
+- player_rect.x, player_rect.y for the coordinates for the player. 
+- Use the coordinates to reset position or to provide boost, spring jump etc
+
+
+Links:
+https://ezgif.com/effects/
+- Color to transparency
+

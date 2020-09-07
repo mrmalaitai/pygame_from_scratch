@@ -152,13 +152,21 @@ def main():
             if air_timer < 6:
                 vertical_momentum = -5
 
-        # Temporary boost
+        # Temporary boost 1
         if(player_rect.y == 115 and player_rect.x < 350 and player_rect.x > 316):
             if(moving_left):
                 player_rect.x -= 5
             if(moving_right):
                 player_rect.x += 5
 
+
+        # Temporary boost 2
+        if(player_rect.y == 67 and player_rect.x < 544 and player_rect.x > 507):
+            if(moving_left):
+                player_rect.x -= 5
+            if(moving_right):
+                player_rect.x += 5
+        
         """
         if(enemy_rect.x < player_rect.x):
             enemy_rect.x += 1
