@@ -11,6 +11,9 @@ def load_map():
         game_map.append(list(row))
     return game_map
 
+def game_over():
+    print("Game over!")
+
 def collision_test(rect,tiles):
     hit_list = []
     for tile in tiles:
@@ -40,6 +43,27 @@ def move(rect, movement, tiles):
             collision_types['top'] = True
     return rect, collision_types
 
+def check_distance(player_rect, enemy_rect, player_health):
+    if player_rect.x < enemy_rect.x:
+            enemy_rect.x -= 1
+
+    if player_rect.x > enemy_rect.x:
+        enemy_rect.x += 1
+
+    if player_rect.y < enemy_rect.y:
+        enemy_rect.y -=1
+
+    if player_rect.y > enemy_rect.y:
+        enemy_rect.y +=1
+
+    if player_rect.y == enemy_rect.y and player_rect.x == enemy_rect.x:
+        if player_health > 0:
+            player_health -= 1
+        else:
+            return 0
+
+    return(player_health)
+
 def main():
     pygame.init() # initiates all the modules required for pygame
 
@@ -62,6 +86,7 @@ def main():
     grass_img = pygame.image.load("images/wood.png")
     spring_img = pygame.image.load("images/spring.png")
     slip_img = pygame.image.load("images/slip.png")
+    finish_img = pygame.image.load("images/finish.png")
     player_img = pygame.image.load("images/player.png").convert_alpha()
     enemy_img = pygame.image.load("images/enemy.png").convert()
     #run_animation = [pygame.image.load("images/run/run_0.png"),pygame.image.load("images/run/run_1.png")]
@@ -70,17 +95,19 @@ def main():
     jump_sound = pygame.mixer.Sound('audio/jump.wav')
     
     # Play music
-    pygame.mixer.music.load('audio/music.wav')
-    pygame.mixer.music.play(-1) # Repeat
+    #pygame.mixer.music.load('audio/music.wav')
+    #pygame.mixer.music.play(-1) # Repeat
 
-    player_rect = pygame.Rect(100,100,5,13)
+    player_rect = pygame.Rect(100,100,5,13) # Player object
+    enemy_rect = pygame.Rect(64,195,5,13) # Enemey object
         
     game_map = load_map() # Map for game
 
     gameover = False
+    player_health = 100
     
     while not gameover:
-        display.fill((250,193,6)) # background colour
+        display.fill((250,193,6)) # background        colour
         
         true_scroll[0] += (player_rect.x-true_scroll[0]-152)/20 # a number lower than 20 speeds up the parallax
         true_scroll[1] += (player_rect.y-true_scroll[1]-106)/20 # a number higher than 20 slows down the parallax
@@ -102,25 +129,31 @@ def main():
                     display.blit(spring_img,(x*16-scroll[0],y*16-scroll[1]))
                 if tile == '4':
                     display.blit(slip_img,(x*16-scroll[0],y*16-scroll[1]))    
+                if tile == '5':
+                    display.blit(finish_img,(x*16-scroll[0],y*16-scroll[1]))   
                 if tile != '0':
                     tile_rects.append(pygame.Rect(x*16,y*16,16,16))
                 x += 1
             y += 1
         
         player_movement = [0,0] # player_movement[0] represents the x direction, player_movement[1] represents the y direction
+        enemy_movement = [0,0]
 
         if moving_left == True:
             player_movement[0] -= 2 # if player_movement[0] = -2 then the player is moving to the left
+            
 
         if moving_right == True:
             player_movement[0] += 2 # if player_movement[0] = 2 then the player is moving to the right
 
         player_movement[1] += vertical_momentum
+        enemy_movement[1] += vertical_momentum
         vertical_momentum += 0.2
         if vertical_momentum > 3:
             vertical_momentum = 3
 
         player_rect,collisions = move(player_rect,player_movement,tile_rects)
+        #enemy_rect,collisions = move(enemy_rect,enemy_movement,tile_rects)
         
         if collisions['bottom'] == True:
             air_timer = 0
@@ -129,6 +162,7 @@ def main():
             air_timer += 1
 
         display.blit(player_img,(player_rect.x-scroll[0],player_rect.y-scroll[1]))
+        display.blit(enemy_img,(enemy_rect.x-scroll[0],enemy_rect.y-scroll[1]))
 
         for event in pygame.event.get(): # wait for event
             if event.type == QUIT: # If the 'x' on the top right of the window is clicked, close the window
@@ -182,6 +216,13 @@ def main():
                 player_rect.x -= 5
             if(moving_right):
                 player_rect.x += 5
+
+        player_health = (check_distance(player_rect, enemy_rect, player_health)) # Closes the distance for player from enemy
+        
+        if(player_health == 0):
+            game_over = True
+        
+        print(player_health)
 
         screen.blit(pygame.transform.scale(display,WINDOW_SIZE),(0,0))
         pygame.display.update()
