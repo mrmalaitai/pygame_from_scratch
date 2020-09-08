@@ -56,13 +56,11 @@ def check_distance(player_rect, enemy_rect, player_health):
     if player_rect.y > enemy_rect.y:
         enemy_rect.y +=1
 
-    if player_rect.y == enemy_rect.y and player_rect.x == enemy_rect.x:
-        if player_health > 0:
-            player_health -= 1
-        else:
-            return 0
+    #if(player_rect.x >= enemy_rect.x and player_rect.x <= enemy_rect.x) and (player_rect.y >= enemy_rect.y and player_rect.y < enemy_rect.y + 15):
+    #    player_rect.x = 100
+    #    player_rect.y = 100
 
-    return(player_health)
+    return()
 
 def main():
     pygame.init() # initiates all the modules required for pygame
@@ -88,7 +86,8 @@ def main():
     slip_img = pygame.image.load("images/slip.png")
     finish_img = pygame.image.load("images/finish.png")
     player_img = pygame.image.load("images/player.png").convert_alpha()
-    enemy_img = pygame.image.load("images/enemy.png").convert()
+    player_img_flip = pygame.transform.flip(player_img, True, False)
+    enemy_img = pygame.image.load("images/enemy.png").convert_alpha()
     #run_animation = [pygame.image.load("images/run/run_0.png"),pygame.image.load("images/run/run_1.png")]
 
     # Audio files
@@ -141,7 +140,7 @@ def main():
 
         if moving_left == True:
             player_movement[0] -= 2 # if player_movement[0] = -2 then the player is moving to the left
-            
+
 
         if moving_right == True:
             player_movement[0] += 2 # if player_movement[0] = 2 then the player is moving to the right
@@ -161,7 +160,19 @@ def main():
         else:
             air_timer += 1
 
-        display.blit(player_img,(player_rect.x-scroll[0],player_rect.y-scroll[1]))
+        direction = 0
+
+        if(moving_left == True):
+            direction = 1
+        if(moving_right == True):
+            direction = 0
+        
+        
+
+        if(direction == 0):
+            display.blit(player_img,(player_rect.x-scroll[0],player_rect.y-scroll[1]))
+        if(direction == 1):
+            display.blit(player_img_flip,(player_rect.x-scroll[0],player_rect.y-scroll[1]))
         display.blit(enemy_img,(enemy_rect.x-scroll[0],enemy_rect.y-scroll[1]))
 
         for event in pygame.event.get(): # wait for event
@@ -203,6 +214,11 @@ def main():
             if air_timer < 6:
                 vertical_momentum = -7
 
+        if(player_rect.y == 35 and player_rect.x < 543 and player_rect.x > 524):
+            jump_sound.play()
+            if air_timer < 6:
+                vertical_momentum = -7
+
         # Temporary boost 1
         if(player_rect.y == 195 and player_rect.x < 350 and player_rect.x > 316):
             if(moving_left):
@@ -222,7 +238,9 @@ def main():
         if(player_health == 0):
             game_over = True
         
-        print(player_health)
+        #print(player_health)
+
+        print(player_rect.x, player_rect.y)
 
         screen.blit(pygame.transform.scale(display,WINDOW_SIZE),(0,0))
         pygame.display.update()
