@@ -62,15 +62,20 @@ def main():
     grass_img = pygame.image.load("images/wood.png")
     spring_img = pygame.image.load("images/spring.png")
     slip_img = pygame.image.load("images/slip.png")
-    player_img = pygame.image.load("images/player.png").convert()
+    player_img = pygame.image.load("images/player.png").convert_alpha()
     enemy_img = pygame.image.load("images/enemy.png").convert()
+    #run_animation = [pygame.image.load("images/run/run_0.png"),pygame.image.load("images/run/run_1.png")]
+
+    # Audio files
+    jump_sound = pygame.mixer.Sound('audio/jump.wav')
     
+    # Play music
+    pygame.mixer.music.load('audio/music.wav')
+    pygame.mixer.music.play(-1) # Repeat
 
     player_rect = pygame.Rect(100,100,5,13)
-    #enemy_rect = pygame.Rect(90,100,5,13)
-
-    # Map for game
-    game_map = load_map()
+        
+    game_map = load_map() # Map for game
 
     gameover = False
     
@@ -102,18 +107,21 @@ def main():
                 x += 1
             y += 1
         
-        player_movement = [0,0]
+        player_movement = [0,0] # player_movement[0] represents the x direction, player_movement[1] represents the y direction
 
         if moving_left == True:
-            player_movement[0] -= 2
+            player_movement[0] -= 2 # if player_movement[0] = -2 then the player is moving to the left
+
         if moving_right == True:
-            player_movement[0] += 2
+            player_movement[0] += 2 # if player_movement[0] = 2 then the player is moving to the right
+
         player_movement[1] += vertical_momentum
         vertical_momentum += 0.2
         if vertical_momentum > 3:
             vertical_momentum = 3
 
         player_rect,collisions = move(player_rect,player_movement,tile_rects)
+        
         if collisions['bottom'] == True:
             air_timer = 0
             vertical_momentum = 0
@@ -121,18 +129,20 @@ def main():
             air_timer += 1
 
         display.blit(player_img,(player_rect.x-scroll[0],player_rect.y-scroll[1]))
-        #display.blit(enemy_img,(enemy_rect.x-scroll[0],enemy_rect.y-scroll[1]))
 
         for event in pygame.event.get(): # wait for event
-            if event.type == pygame.QUIT: # If the 'x' on the top right of the window is clicked, close the window
+            if event.type == QUIT: # If the 'x' on the top right of the window is clicked, close the window
+                #gameover = True
                 pygame.quit()
+                sys.exit()
 
             if event.type == KEYDOWN:
                 if event.key == K_LEFT or event.key == K_a: # If left (or w) key is pressed down
                     moving_left = True
                 if event.key == K_RIGHT or event.key == K_d: # If right key (or d) is pressed down
                     moving_right = True
-                if event.key == K_UP or event.key == K_w:
+                if event.key == K_UP or event.key == K_w or event.key == K_SPACE:
+                    jump_sound.play()
                     if air_timer < 6:
                         vertical_momentum = -5
             
@@ -143,40 +153,36 @@ def main():
                     moving_right = False
 
         # If the player is falling (y>200), reset player position.
-        if(player_rect.y>200):
+        if(player_rect.y > 200):
             player_rect.x = 100
             player_rect.y = 100
 
         # Hit the first spring located between (235, 99) and (256, 99)
-        if(player_rect.y == 99 and player_rect.x < 256 and player_rect.x >235):
+        if(player_rect.y == 179 and player_rect.x < 256 and player_rect.x > 235):
+            jump_sound.play()
             if air_timer < 6:
-                vertical_momentum = -5
+                vertical_momentum = -7
+
+        # Hit the second spring located between (235, 99) and (256, 99)
+        if(player_rect.y == 131 and player_rect.x < 608 and player_rect.x > 587):
+            jump_sound.play()
+            if air_timer < 6:
+                vertical_momentum = -7
 
         # Temporary boost 1
-        if(player_rect.y == 115 and player_rect.x < 350 and player_rect.x > 316):
+        if(player_rect.y == 195 and player_rect.x < 350 and player_rect.x > 316):
             if(moving_left):
                 player_rect.x -= 5
             if(moving_right):
                 player_rect.x += 5
-
 
         # Temporary boost 2
-        if(player_rect.y == 67 and player_rect.x < 544 and player_rect.x > 507):
+        if(player_rect.y == 147 and player_rect.x < 544 and player_rect.x > 507):
             if(moving_left):
                 player_rect.x -= 5
             if(moving_right):
                 player_rect.x += 5
-        
-        """
-        if(enemy_rect.x < player_rect.x):
-            enemy_rect.x += 1
-        if(enemy_rect.x > player_rect.x):
-            enemy_rect.x -= 1
-        if(enemy_rect.y < player_rect.y):
-            enemy_rect.y += 1
-        if(enemy_rect.y > player_rect.y):
-            enemy_rect.y -= 1
-        """
+
         screen.blit(pygame.transform.scale(display,WINDOW_SIZE),(0,0))
         pygame.display.update()
         clock.tick(60)
@@ -184,8 +190,6 @@ def main():
 # Global constants
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
-
-
 clock = pygame.time.Clock()
 
 main()
