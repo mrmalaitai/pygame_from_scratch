@@ -12,7 +12,7 @@ def load_map():
     return game_map
 
 def game_over():
-    print("Game over!")
+    
 
 def collision_test(rect,tiles):
     hit_list = []
@@ -44,21 +44,40 @@ def move(rect, movement, tiles):
     return rect, collision_types
 
 def check_distance(player_rect, enemy_rect, player_health):
-    if player_rect.x < enemy_rect.x:
-            enemy_rect.x -= 1
+    if player_rect.x < enemy_rect.x +15:
+        enemy_rect.x -= 1
 
-    if player_rect.x > enemy_rect.x:
+    if player_rect.x > enemy_rect.x +15:
         enemy_rect.x += 1
 
-    if player_rect.y < enemy_rect.y:
-        enemy_rect.y -=1
+    if player_rect.y < enemy_rect.y +15:
+        enemy_rect.y -= 1
 
-    if player_rect.y > enemy_rect.y:
-        enemy_rect.y +=1
-
-    #if(player_rect.x >= enemy_rect.x and player_rect.x <= enemy_rect.x) and (player_rect.y >= enemy_rect.y and player_rect.y < enemy_rect.y + 15):
+    if player_rect.y > enemy_rect.y +15:
+        enemy_rect.y += 1
+    
+    #if(player_rect.x >= enemy_rect.x and player_rect.x + 5 <= enemy_rect.x) and (player_rect.y >= enemy_rect.y and player_rect.y + 13 < enemy_rect.y + 30):
     #    player_rect.x = 100
     #    player_rect.y = 100
+    
+    # player_rect.x + 3 >= enemy_rect.x
+    # player_rect.x <= enemy_rect.x + 30
+    # player_rect.y + 15 >= player_rect.y
+    # player_rect.y <= player_rect.y + 30
+    
+    #print("Top Left: ", (player_rect.x + 5 >= enemy_rect.x and player_rect.y + 13 >= enemy_rect.y)) Correct
+    #print("Top Right: ", (player_rect.x <= enemy_rect.x + 30 and player_rect.y + 13 >= enemy_rect.y)) Correct
+    #print("Bottom Left: ", (player_rect.x + 3 >= enemy_rect.x and player_rect.y <= enemy_rect.y + 30)) Correct
+    #print("Bottom Right: ", (player_rect.x <= enemy_rect.x + 30 and player_rect.y <= enemy_rect.y + 30)) Correct
+
+
+    # If the enemy (width = 30, height = 30) interacts with player (width = 5, height = 13)
+    if((player_rect.x + 5 >= enemy_rect.x and player_rect.y + 13 >= enemy_rect.y) and (player_rect.x <= enemy_rect.x + 30 and player_rect.y + 13 >= enemy_rect.y) and (player_rect.x + 3 >= enemy_rect.x and player_rect.y <= enemy_rect.y + 30) and (player_rect.x <= enemy_rect.x + 30 and player_rect.y <= enemy_rect.y + 30)):
+        player_rect.x = 100
+        player_rect.y = 100
+
+    #print((player_rect.x + 3 >= enemy_rect.x and player_rect.y + 15 >= enemy_rect.y) and (player_rect.x + 3 >= enemy_rect.x and player_rect.y <= enemy_rect.y + 30))
+    #print(player_rect.x + 5 >= enemy_rect.x and player_rect.y + 13 <= enemy_rect.y )
 
     return()
 
@@ -98,7 +117,7 @@ def main():
     #pygame.mixer.music.play(-1) # Repeat
 
     player_rect = pygame.Rect(100,100,5,13) # Player object
-    enemy_rect = pygame.Rect(64,195,5,13) # Enemey object
+    enemy_rect = pygame.Rect(64,195,30,30) # Enemey object
         
     game_map = load_map() # Map for game
 
@@ -208,12 +227,13 @@ def main():
             if air_timer < 6:
                 vertical_momentum = -7
 
-        # Hit the second spring located between (235, 99) and (256, 99)
+        # Hit the second spring located between (587, 99) and (608, 99)
         if(player_rect.y == 131 and player_rect.x < 608 and player_rect.x > 587):
             jump_sound.play()
             if air_timer < 6:
                 vertical_momentum = -7
-
+        
+        # Hit the third spring located between (524, 99) and (543, 99)
         if(player_rect.y == 35 and player_rect.x < 543 and player_rect.x > 524):
             jump_sound.play()
             if air_timer < 6:
@@ -233,14 +253,17 @@ def main():
             if(moving_right):
                 player_rect.x += 5
 
-        player_health = (check_distance(player_rect, enemy_rect, player_health)) # Closes the distance for player from enemy
+        #player_health = (check_distance(player_rect, enemy_rect, player_health)) # Closes the distance for player from enemy
         
-        if(player_health == 0):
-            game_over = True
+        #if(player_health == 0):
+        #    game_over = True
         
         #print(player_health)
 
-        print(player_rect.x, player_rect.y)
+        #print(player_rect.x, player_rect.y)
+        if(player_rect.y==19 and player_rect.x <= 123 and player_rect.x >= 93):
+            player_rect.x = 100
+            player_rect.y = 100            
 
         screen.blit(pygame.transform.scale(display,WINDOW_SIZE),(0,0))
         pygame.display.update()
