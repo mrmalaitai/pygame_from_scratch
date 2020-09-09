@@ -12,7 +12,7 @@ def load_map():
     return game_map
 
 def game_over():
-    
+    print()
 
 def collision_test(rect,tiles):
     hit_list = []
@@ -43,7 +43,7 @@ def move(rect, movement, tiles):
             collision_types['top'] = True
     return rect, collision_types
 
-def check_distance(player_rect, enemy_rect, player_health):
+def check_distance(player_rect, enemy_rect):
     if player_rect.x < enemy_rect.x +15:
         enemy_rect.x -= 1
 
@@ -253,10 +253,7 @@ def main():
             if(moving_right):
                 player_rect.x += 5
 
-        #player_health = (check_distance(player_rect, enemy_rect, player_health)) # Closes the distance for player from enemy
-        
-        #if(player_health == 0):
-        #    game_over = True
+        check_distance(player_rect, enemy_rect) # Closes the distance for player from enemy
         
         #print(player_health)
 
