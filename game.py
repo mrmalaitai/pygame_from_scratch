@@ -44,40 +44,22 @@ def move(rect, movement, tiles):
     return rect, collision_types
 
 def check_distance(player_rect, enemy_rect):
-    if player_rect.x < enemy_rect.x +15:
+    if player_rect.x < enemy_rect.x + ENEMY_W/2:
         enemy_rect.x -= 1
 
-    if player_rect.x > enemy_rect.x +15:
+    if player_rect.x > enemy_rect.x + ENEMY_W/2:
         enemy_rect.x += 1
 
-    if player_rect.y < enemy_rect.y +15:
+    if player_rect.y < enemy_rect.y + ENEMY_H/2:
         enemy_rect.y -= 1
 
-    if player_rect.y > enemy_rect.y +15:
+    if player_rect.y > enemy_rect.y + ENEMY_H/2:
         enemy_rect.y += 1
-    
-    #if(player_rect.x >= enemy_rect.x and player_rect.x + 5 <= enemy_rect.x) and (player_rect.y >= enemy_rect.y and player_rect.y + 13 < enemy_rect.y + 30):
-    #    player_rect.x = 100
-    #    player_rect.y = 100
-    
-    # player_rect.x + 3 >= enemy_rect.x
-    # player_rect.x <= enemy_rect.x + 30
-    # player_rect.y + 15 >= player_rect.y
-    # player_rect.y <= player_rect.y + 30
-    
-    #print("Top Left: ", (player_rect.x + 5 >= enemy_rect.x and player_rect.y + 13 >= enemy_rect.y)) Correct
-    #print("Top Right: ", (player_rect.x <= enemy_rect.x + 30 and player_rect.y + 13 >= enemy_rect.y)) Correct
-    #print("Bottom Left: ", (player_rect.x + 3 >= enemy_rect.x and player_rect.y <= enemy_rect.y + 30)) Correct
-    #print("Bottom Right: ", (player_rect.x <= enemy_rect.x + 30 and player_rect.y <= enemy_rect.y + 30)) Correct
-
 
     # If the enemy (width = 30, height = 30) interacts with player (width = 5, height = 13)
-    if((player_rect.x + 5 >= enemy_rect.x and player_rect.y + 13 >= enemy_rect.y) and (player_rect.x <= enemy_rect.x + 30 and player_rect.y + 13 >= enemy_rect.y) and (player_rect.x + 3 >= enemy_rect.x and player_rect.y <= enemy_rect.y + 30) and (player_rect.x <= enemy_rect.x + 30 and player_rect.y <= enemy_rect.y + 30)):
+    if((player_rect.x + PLAYER_W >= enemy_rect.x and player_rect.y + PLAYER_H >= enemy_rect.y) and (player_rect.x <= enemy_rect.x + ENEMY_W and player_rect.y + PLAYER_H >= enemy_rect.y) and (player_rect.x + PLAYER_W >= enemy_rect.x and player_rect.y <= enemy_rect.y + ENEMY_H) and (player_rect.x <= enemy_rect.x + ENEMY_W and player_rect.y <= enemy_rect.y + ENEMY_H)):
         player_rect.x = 100
         player_rect.y = 100
-
-    #print((player_rect.x + 3 >= enemy_rect.x and player_rect.y + 15 >= enemy_rect.y) and (player_rect.x + 3 >= enemy_rect.x and player_rect.y <= enemy_rect.y + 30))
-    #print(player_rect.x + 5 >= enemy_rect.x and player_rect.y + 13 <= enemy_rect.y )
 
     return()
 
@@ -87,6 +69,7 @@ def main():
     pygame.display.set_caption("Pygame from Scratch") # title for pygame window
 
     WINDOW_SIZE = (600, 400)
+
     screen = pygame.display.set_mode(WINDOW_SIZE, 0, 32)
     display = pygame.Surface((300,200)) # used as the surface for rendering, 
 
@@ -113,11 +96,11 @@ def main():
     jump_sound = pygame.mixer.Sound('audio/jump.wav')
     
     # Play music
-    #pygame.mixer.music.load('audio/music.wav')
-    #pygame.mixer.music.play(-1) # Repeat
+    pygame.mixer.music.load('audio/halloween_music.mp3')
+    pygame.mixer.music.play(-1) # Repeat
 
-    player_rect = pygame.Rect(100,100,5,13) # Player object
-    enemy_rect = pygame.Rect(64,195,30,30) # Enemey object
+    player_rect = pygame.Rect(100,100,PLAYER_W,PLAYER_H) # Player object
+    enemy_rect = pygame.Rect(700,50,ENEMY_W,ENEMY_H) # Enemey object
         
     game_map = load_map() # Map for game
 
@@ -125,7 +108,7 @@ def main():
     player_health = 100
     
     while not gameover:
-        display.fill((250,193,6)) # background        colour
+        display.fill((0,0,0)) # background        colour
         
         true_scroll[0] += (player_rect.x-true_scroll[0]-152)/20 # a number lower than 20 speeds up the parallax
         true_scroll[1] += (player_rect.y-true_scroll[1]-106)/20 # a number higher than 20 slows down the parallax
@@ -160,7 +143,6 @@ def main():
         if moving_left == True:
             player_movement[0] -= 2 # if player_movement[0] = -2 then the player is moving to the left
 
-
         if moving_right == True:
             player_movement[0] += 2 # if player_movement[0] = 2 then the player is moving to the right
 
@@ -185,8 +167,6 @@ def main():
             direction = 1
         if(moving_right == True):
             direction = 0
-        
-        
 
         if(direction == 0):
             display.blit(player_img,(player_rect.x-scroll[0],player_rect.y-scroll[1]))
@@ -206,7 +186,7 @@ def main():
                 if event.key == K_RIGHT or event.key == K_d: # If right key (or d) is pressed down
                     moving_right = True
                 if event.key == K_UP or event.key == K_w or event.key == K_SPACE:
-                    jump_sound.play()
+                    #jump_sound.play()
                     if air_timer < 6:
                         vertical_momentum = -5
             
@@ -254,8 +234,6 @@ def main():
                 player_rect.x += 5
 
         check_distance(player_rect, enemy_rect) # Closes the distance for player from enemy
-        
-        #print(player_health)
 
         #print(player_rect.x, player_rect.y)
         if(player_rect.y==19 and player_rect.x <= 123 and player_rect.x >= 93):
@@ -269,6 +247,15 @@ def main():
 # Global constants
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
+
+# Player CONSTANTS
+PLAYER_W = 5 # player width
+PLAYER_H = 13 # player height
+
+# Enemy CONSTANTS
+ENEMY_W = 27 # enemy width
+ENEMY_H = 20 # enemy height
+
 clock = pygame.time.Clock()
 
 main()
