@@ -1,4 +1,4 @@
-import pygame, sys
+import pygame, sys, time
 from pygame.locals import * # this is so the KEYDOWN, KEYUP etc will work
 
 def load_map():
@@ -44,6 +44,9 @@ def move(rect, movement, tiles):
     return rect, collision_types
 
 def check_distance(player_rect, enemy_rect):
+    game_over = False
+    bite_sound = pygame.mixer.Sound('audio/bite.wav')
+
     if player_rect.x < enemy_rect.x + ENEMY_W/2:
         enemy_rect.x -= 1
 
@@ -58,19 +61,22 @@ def check_distance(player_rect, enemy_rect):
 
     # If the enemy (width = 30, height = 30) interacts with player (width = 5, height = 13)
     if((player_rect.x + PLAYER_W >= enemy_rect.x and player_rect.y + PLAYER_H >= enemy_rect.y) and (player_rect.x <= enemy_rect.x + ENEMY_W and player_rect.y + PLAYER_H >= enemy_rect.y) and (player_rect.x + PLAYER_W >= enemy_rect.x and player_rect.y <= enemy_rect.y + ENEMY_H) and (player_rect.x <= enemy_rect.x + ENEMY_W and player_rect.y <= enemy_rect.y + ENEMY_H)):
+        bite_sound.play()
         player_rect.x = 100
         player_rect.y = 100
+        game_over = True
 
-    return()
+    return(game_over)
 
 def main():
     pygame.init() # initiates all the modules required for pygame
-
+    #pygame.font.init()
+    
     pygame.display.set_caption("Pygame from Scratch") # title for pygame window
 
     WINDOW_SIZE = (600, 400)
 
-    screen = pygame.display.set_mode(WINDOW_SIZE, 0, 32)
+    screen = pygame.display.set_mode(WINDOW_SIZE)#, 0, 32)
     display = pygame.Surface((300,200)) # used as the surface for rendering, 
 
     moving_left = False # player movement to the left
@@ -81,7 +87,6 @@ def main():
     true_scroll = [0,0]
 
     # Loading images
-
     dirt_img = pygame.image.load("images/wall.png")
     grass_img = pygame.image.load("images/wood.png")
     spring_img = pygame.image.load("images/spring.png")
@@ -95,20 +100,27 @@ def main():
     # Audio files
     jump_sound = pygame.mixer.Sound('audio/jump.wav')
     
+    # Dispalying text
+    
+    font = pygame.font.SysFont("Impact", 20)
+
     # Play music
-    pygame.mixer.music.load('audio/halloween_music.mp3')
+    pygame.mixer.music.load('audio/toccata_and_fugue_in_d_minor.mp3')
     pygame.mixer.music.play(-1) # Repeat
 
     player_rect = pygame.Rect(100,100,PLAYER_W,PLAYER_H) # Player object
     enemy_rect = pygame.Rect(700,50,ENEMY_W,ENEMY_H) # Enemey object
-        
+
     game_map = load_map() # Map for game
 
     gameover = False
-    player_health = 100
+
+    timer_count_start = time.time()
+    
     
     while not gameover:
-        display.fill((0,0,0)) # background        colour
+        
+        display.fill((0,0,0)) # background colour
         
         true_scroll[0] += (player_rect.x-true_scroll[0]-152)/20 # a number lower than 20 speeds up the parallax
         true_scroll[1] += (player_rect.y-true_scroll[1]-106)/20 # a number higher than 20 slows down the parallax
@@ -233,16 +245,34 @@ def main():
             if(moving_right):
                 player_rect.x += 5
 
-        check_distance(player_rect, enemy_rect) # Closes the distance for player from enemy
+        game_over = check_distance(player_rect, enemy_rect) # Closes the distance for player from enemy
 
         #print(player_rect.x, player_rect.y)
-        if(player_rect.y==19 and player_rect.x <= 123 and player_rect.x >= 93):
-            player_rect.x = 100
-            player_rect.y = 100            
 
+        # Finish line
+        if(player_rect.y==19 and player_rect.x <= 123 and player_rect.x >= 93):
+            
+            player_rect.x = 100
+            player_rect.y = 100
+            #f = open("scores.txt", "a+")
+            #f.write(str(timer_score)+"\n")
+            #f.close()
+
+        timer_count_end = time.time()
+        timer_score = int(round(timer_count_end - timer_count_start))
+        
+        
+        timer_count = font.render("Time: {}".format(timer_score), True, (255,255,255))
+        
+        
         screen.blit(pygame.transform.scale(display,WINDOW_SIZE),(0,0))
+        screen.blit(timer_count,(0,0))
+        
+
         pygame.display.update()
         clock.tick(60)
+
+
 
 # Global constants
 SCREEN_WIDTH = 800
@@ -257,5 +287,6 @@ ENEMY_W = 27 # enemy width
 ENEMY_H = 20 # enemy height
 
 clock = pygame.time.Clock()
+timer = pygame.time.Clock()
 
 main()
