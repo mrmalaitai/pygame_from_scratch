@@ -32,7 +32,7 @@ def move(rect, movement, tiles):
         elif movement[0] < 0:
             rect.left = tile.right
             collision_types['left'] = True
-    rect.y += movement[1]
+    rect.y += int(movement[1])
     hit_list = collision_test(rect,tiles)
     for tile in hit_list:
         if movement[1] > 0:
@@ -74,7 +74,7 @@ def main():
     
     pygame.display.set_caption("Pygame from Scratch") # title for pygame window
 
-    WINDOW_SIZE = (600, 400)
+    WINDOW_SIZE = (SCREEN_WIDTH, SCREEN_HEIGHT)
 
     screen = pygame.display.set_mode(WINDOW_SIZE)#, 0, 32)
     display = pygame.Surface((300,200)) # used as the surface for rendering, 
@@ -95,7 +95,6 @@ def main():
     player_img = pygame.image.load("images/player.png").convert_alpha()
     player_img_flip = pygame.transform.flip(player_img, True, False)
     enemy_img = pygame.image.load("images/enemy.png").convert_alpha()
-    #run_animation = [pygame.image.load("images/run/run_0.png"),pygame.image.load("images/run/run_1.png")]
 
     # Audio files
     jump_sound = pygame.mixer.Sound('audio/jump.wav')
@@ -116,11 +115,20 @@ def main():
     gameover = False
 
     timer_count_start = time.time()
+    highscore = 0
     
     
     while not gameover:
         
         display.fill((0,0,0)) # background colour
+
+        # Counts the timer
+        timer_count_end = time.time()
+        timer_score = int(round(timer_count_end - timer_count_start))
+        
+        # Creates the timer text
+        timer_count = font.render("Time: {}".format(timer_score), True, (255,255,255))
+        display_high_score = font.render("Highscore: {}".format(highscore), True, (255,255,255))
         
         true_scroll[0] += (player_rect.x-true_scroll[0]-152)/20 # a number lower than 20 speeds up the parallax
         true_scroll[1] += (player_rect.y-true_scroll[1]-106)/20 # a number higher than 20 slows down the parallax
@@ -245,7 +253,7 @@ def main():
             if(moving_right):
                 player_rect.x += 5
 
-        game_over = check_distance(player_rect, enemy_rect) # Closes the distance for player from enemy
+        check_distance(player_rect, enemy_rect) # Closes the distance for player from enemy
 
         #print(player_rect.x, player_rect.y)
 
@@ -254,19 +262,15 @@ def main():
             
             player_rect.x = 100
             player_rect.y = 100
-            #f = open("scores.txt", "a+")
-            #f.write(str(timer_score)+"\n")
-            #f.close()
+            highscore = timer_score
 
-        timer_count_end = time.time()
-        timer_score = int(round(timer_count_end - timer_count_start))
-        
-        
-        timer_count = font.render("Time: {}".format(timer_score), True, (255,255,255))
+
+
         
         
         screen.blit(pygame.transform.scale(display,WINDOW_SIZE),(0,0))
-        screen.blit(timer_count,(0,0))
+        screen.blit(timer_count,(0,0)) # Displays the timer count
+        screen.blit(display_high_score, (100,0))
         
 
         pygame.display.update()
@@ -275,8 +279,8 @@ def main():
 
 
 # Global constants
-SCREEN_WIDTH = 800
-SCREEN_HEIGHT = 600
+SCREEN_WIDTH = 600
+SCREEN_HEIGHT = 400
 
 # Player CONSTANTS
 PLAYER_W = 5 # player width
