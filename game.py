@@ -14,6 +14,11 @@ def load_map():
 def game_over():
     print()
 
+def save_highscore(score):
+    f = open('scores.txt','w+')
+    f.write(str(score))
+    f.close()
+
 def collision_test(rect,tiles):
     hit_list = []
     for tile in tiles:
@@ -115,8 +120,12 @@ def main():
     gameover = False
 
     timer_count_start = time.time()
-    highscore = 0
+    f = open("scores.txt", "r+")
+    highscore = f.read()
+    if (highscore == ""):
+        highscore = 0
     
+    f.close()
     
     while not gameover:
         
@@ -206,7 +215,6 @@ def main():
                 if event.key == K_RIGHT or event.key == K_d: # If right key (or d) is pressed down
                     moving_right = True
                 if event.key == K_UP or event.key == K_w or event.key == K_SPACE:
-                    #jump_sound.play()
                     if air_timer < 6:
                         vertical_momentum = -5
             
@@ -255,14 +263,15 @@ def main():
 
         check_distance(player_rect, enemy_rect) # Closes the distance for player from enemy
 
-        #print(player_rect.x, player_rect.y)
-
         # Finish line
         if(player_rect.y==19 and player_rect.x <= 123 and player_rect.x >= 93):
             
             player_rect.x = 100
             player_rect.y = 100
             highscore = timer_score
+            save_highscore(highscore)
+            gameover = True
+            
 
 
 
